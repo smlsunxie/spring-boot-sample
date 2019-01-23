@@ -8,14 +8,14 @@ pipeline {
     }
     stage('test') {
       steps {
-        sh 'mvn cobertura:cobertura test'
+        sh 'docker-compose run test'
       }
     }
     stage('package') {
       parallel {
         stage('package') {
           steps {
-            sh 'mvn package'
+            sh 'docker-compose run package'
           }
         }
         stage('report') {
@@ -34,7 +34,10 @@ pipeline {
       parallel {
         stage('deploy') {
           steps {
-            sh 'make deploy-default'
+            sh '''docker-compose run package
+make build-docker-prod-image
+make deploy-production-local
+'''
           }
         }
         stage('archive') {
